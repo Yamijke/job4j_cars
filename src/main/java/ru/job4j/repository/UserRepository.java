@@ -5,6 +5,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import ru.job4j.cars.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +20,6 @@ public class UserRepository {
      * @return пользователь с id.
      */
     public User create(User user) {
-        if (!loginExists(user.getLogin())) {
             Session session = sf.openSession();
             try {
                 session.beginTransaction();
@@ -28,23 +28,7 @@ public class UserRepository {
             } catch (Exception e) {
                 session.getTransaction().rollback();
             }
-        }
         return user;
-    }
-
-    /**
-     * Проверка существования логина
-     *
-     * @param login login.
-     * @return true/false
-     */
-    public boolean loginExists(String login) {
-        try (Session session = sf.openSession()) {
-            User user = session.createQuery("FROM User u WHERE u.login = :login", User.class)
-                    .setParameter("login", login)
-                    .uniqueResult();
-            return user != null;
-        }
     }
 
     /**
@@ -63,13 +47,7 @@ public class UserRepository {
                     .executeUpdate();
             session.getTransaction().commit();
         } catch (Exception e) {
-            if (session.getTransaction() != null) {
-                session.getTransaction().rollback();
-            }
-        } finally {
-            if (session != null) {
-                session.close();
-            }
+            session.getTransaction().rollback();
         }
     }
 
@@ -88,13 +66,7 @@ public class UserRepository {
                     .executeUpdate();
             session.getTransaction().commit();
         } catch (Exception e) {
-            if (session.getTransaction() != null) {
-                session.getTransaction().rollback();
-            }
-        } finally {
-            if (session != null) {
-                session.close();
-            }
+            session.getTransaction().rollback();
         }
     }
 
@@ -104,11 +76,15 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findAllOrderById() {
-        try (Session session = sf.openSession()) {
+        Session session = sf.openSession();
+        try {
             session.beginTransaction();
             List<User> result = session.createQuery("from User order by id", User.class).list();
             session.getTransaction().commit();
             return result;
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+            return new ArrayList<>();
         }
     }
 
@@ -118,11 +94,17 @@ public class UserRepository {
      * @return пользователь.
      */
     public Optional<User> findById(int userId) {
-        try (Session session = sf.openSession()) {
+        Session session = sf.openSession();
+        try {
             session.beginTransaction();
-            User user = session.get(User.class, userId);
+            Optional<User> user = session.createQuery("from User where id = :userId", User.class)
+                    .setParameter("userId", userId)
+                    .uniqueResultOptional();
             session.getTransaction().commit();
-            return Optional.ofNullable(user);
+            return user;
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+            return Optional.empty();
         }
     }
 
@@ -133,15 +115,20 @@ public class UserRepository {
      * @return список пользователей.
      */
     public List<User> findByLikeLogin(String key) {
-        try (Session session = sf.openSession()) {
+        Session session = sf.openSession();
+        try {
             session.beginTransaction();
             List<User> result = session.createQuery("from User as u where u.login like :key", User.class)
                     .setParameter("key", "%" + key + "%")
                     .getResultList();
             session.getTransaction().commit();
             return result;
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+            return new ArrayList<>();
         }
     }
+
 
     /**
      * Найти пользователя по login.
@@ -150,11 +137,14 @@ public class UserRepository {
      * @return Optional or user.
      */
     public Optional<User> findByLogin(String login) {
-        try (Session session = sf.openSession()) {
-            User user = session.createQuery("from User u where u.login = :login", User.class)
+        Session session = sf.openSession();
+        try {
+            return session.createQuery("from User u where u.login = :login", User.class)
                     .setParameter("login", login)
-                    .uniqueResult();
-            return Optional.ofNullable(user);
+                    .uniqueResultOptional();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+            return Optional.empty();
         }
     }
 }
