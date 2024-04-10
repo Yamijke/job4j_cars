@@ -129,7 +129,6 @@ public class UserRepository {
         }
     }
 
-
     /**
      * Найти пользователя по login.
      *
