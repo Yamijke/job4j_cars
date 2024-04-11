@@ -84,8 +84,8 @@ public class UserRepository {
             return result;
         } catch (Exception e) {
             session.getTransaction().rollback();
-            return new ArrayList<>();
         }
+        return new ArrayList<>();
     }
 
     /**
