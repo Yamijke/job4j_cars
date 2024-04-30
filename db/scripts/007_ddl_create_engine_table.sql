@@ -1,5 +1,5 @@
 create table engine
 (
     id serial primary key,
-    name varchar not null unique,
+    name varchar not null unique
 );
