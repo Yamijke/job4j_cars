@@ -5,8 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -15,7 +16,12 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "owners")
 public class Owner {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
+
+    @OneToMany(mappedBy = "owner")
+    private Set<HistoryOwner> ownerHistories = new HashSet<>();
 }
 

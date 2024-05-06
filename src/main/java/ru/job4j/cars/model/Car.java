@@ -6,9 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -27,11 +25,6 @@ public class Car {
     @JoinColumn(name = "engine_id")
     private Engine engine;
 
-    @ManyToMany
-    @JoinTable(
-            name = "history_owners",
-            joinColumns = {@JoinColumn(name = "car_id")},
-            inverseJoinColumns = {@JoinColumn(name = "owner_id")}
-    )
-    private Set<Owner> owners = new HashSet<>();
+    @OneToMany(mappedBy = "car")
+    private Set<HistoryOwner> ownerHistories = new HashSet<>();
 }
