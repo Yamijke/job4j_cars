@@ -21,6 +21,10 @@ public class Owner {
     private int id;
     private String name;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User autoUser;
+
     @OneToMany(mappedBy = "owner")
     private Set<HistoryOwner> ownerHistories = new HashSet<>();
 }
