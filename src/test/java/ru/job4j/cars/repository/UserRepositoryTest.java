@@ -34,6 +34,7 @@ class UserRepositoryTest {
         Session session = sf.openSession();
         try {
             session.beginTransaction();
+            session.createQuery("DELETE FROM Owner").executeUpdate();
             session.createQuery("DELETE FROM User").executeUpdate();
             session.getTransaction().commit();
         } catch (Exception e) {
